@@ -15,6 +15,18 @@ std::vector<line> lines{ // Defining the lines that need to be drawn. A line has
     line{6, 3}, line{6, 1} // 2 lines from (1, -1, 1)
 };
 
+std::vector<coord3D> tetrahedronPoints{ // Defining the points of the cube
+    coord3D{ 1.0,  1.0,  1.0}, coord3D{ 1.0, -1.0, -1.0},
+    coord3D{-1.0,  1.0, -1.0}, coord3D{-1.0, -1.0,  1.0}
+};
+
+std::vector<line> tetrahedronLines{
+    line{0, 1}, line{0, 2}, line{0, 3},
+    line{1, 2}, line{1, 3}, line{2, 3}
+
+};
+
+
 // matrix multiplication: http://matrixmultiplication.xyz/
 coord2D projection(coord3D point){
     // {1, 0, 0},
@@ -53,6 +65,40 @@ coord3D rotate(coord3D point, float angleX, float angleY, float angleZ){
     return point;
 }
 
+void drawCube(SDL_Renderer* renderer, float &x_rot, float &y_rot, float &z_rot){
+    for(auto line : lines){ // Loop through all the lines
+        coord3D start3DPoint = rotate(points[line.start], x_rot, y_rot, z_rot);
+        coord3D end3DPoint = rotate(points[line.end], x_rot, y_rot, z_rot);
+
+        coord2D startPoint = projection(start3DPoint);
+        coord2D endPoint = projection(end3DPoint);
+
+        int startX = MID_X + CUBE_LENGTH * startPoint.x;
+        int startY = MID_Y + CUBE_LENGTH * startPoint.y;
+        int endX = MID_X + CUBE_LENGTH * endPoint.x;
+        int endY = MID_Y + CUBE_LENGTH * endPoint.y;
+
+        SDL_RenderDrawLine(renderer, startX, startY, endX, endY);
+    }
+}
+
+void drawTetrahedron(SDL_Renderer* renderer, float &x_rot, float &y_rot, float &z_rot){
+    for(auto line : tetrahedronLines){ // Loop through all the lines of tetrahedron
+        coord3D start3DPoint = rotate(tetrahedronPoints[line.start], x_rot, y_rot, z_rot);
+        coord3D end3DPoint = rotate(tetrahedronPoints[line.end], x_rot, y_rot, z_rot);
+
+        coord2D startPoint = projection(start3DPoint);
+        coord2D endPoint = projection(end3DPoint);
+
+        int startX = MID_X + CUBE_LENGTH * startPoint.x;
+        int startY = MID_Y + CUBE_LENGTH * startPoint.y;
+        int endX = MID_X + CUBE_LENGTH * endPoint.x;
+        int endY = MID_Y + CUBE_LENGTH * endPoint.y;
+
+        SDL_RenderDrawLine(renderer, startX, startY, endX, endY);
+    }
+}
+
 int main(){
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -82,22 +128,9 @@ int main(){
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); // Background colour
         SDL_RenderClear(renderer); // Clear everything & draw background
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE); // Render colour to green
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE); // Render colour to whatever
 
-        for(auto line : lines){ // Loop through all the lines
-            coord3D start3DPoint = rotate(points[line.start], x_rot, y_rot, z_rot);
-            coord3D end3DPoint = rotate(points[line.end], x_rot, y_rot, z_rot);
-
-            coord2D startPoint = projection(start3DPoint);
-            coord2D endPoint = projection(end3DPoint);
-            
-            int startX = MID_X + CUBE_LENGTH * startPoint.x;
-            int startY = MID_Y + CUBE_LENGTH * startPoint.y;
-            int endX = MID_X + CUBE_LENGTH * endPoint.x;
-            int endY = MID_Y + CUBE_LENGTH * endPoint.y;
-
-            SDL_RenderDrawLine(renderer, startX, startY, endX, endY);
-        }
+        drawCube(renderer, x_rot, y_rot, z_rot);
 
         SDL_RenderPresent(renderer); // Update screen
 

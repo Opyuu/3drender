@@ -33,3 +33,6 @@
 
 # MacOS Files
 .DS_Store
+main
+.vscode
+.idea
